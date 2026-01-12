@@ -115,11 +115,17 @@ function HomePage() {
           {['all', 'lost', 'found'].map((type) => (
             <button 
               key={type}
-              onClick={()=>setFilter(type)} 
-              className={`btn btn-lg px-5 py-3 border-3 fw-bold shadow-sm ${
-                filter === type ? (type === 'lost' ? 'btn-danger' : type === 'found' ? 'btn-success' : 'btn-dark') : `btn-outline-${type === 'lost' ? 'danger' : type === 'found' ? 'btn-success' : 'dark'}`
+              onClick={() => setFilter(type)} 
+              className={`btn btn-lg px-5 py-3 fw-bold shadow-sm transition-all ${
+                filter === type 
+                  ? (type === 'lost' ? 'btn-danger' : type === 'found' ? 'btn-success' : 'btn-dark') 
+                  : (type === 'lost' ? 'btn-outline-danger' : type === 'found' ? 'btn-outline-success' : 'btn-outline-dark')
               }`}
-              style={{ borderRadius: '15px', minWidth: '180px' }}
+              style={{ 
+                borderRadius: '15px', 
+                minWidth: '180px', 
+                borderWidth: '3px' // Makes the border thick like your "Lost" button
+              }}
             >
               {type.charAt(0).toUpperCase() + type.slice(1)}
             </button>
