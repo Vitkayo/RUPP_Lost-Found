@@ -1,214 +1,114 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
+import ItemCard from '../components/ItemCard';
 
 function HomePage() {
-  const [items, setItems] = useState([]);
-  const [filter, setFilter] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [sortOrder, setSortOrder] = useState('desc');
-  const [selectedDate, setSelectedDate] = useState('');
-
-  // --- 1. TIME HELPER FUNCTION ---
-  const formatRelativeTime = (dateString) => {
-    if (!dateString) return '';
-    const now = new Date();
-    const postDate = new Date(dateString);
-    const diffInSeconds = Math.floor((now - postDate) / 1000);
-
-    if (diffInSeconds < 60) return 'Just now';
-    
-    const diffInMinutes = Math.floor(diffInSeconds / 60);
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-    
-    const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    
-    const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays === 1) return 'Yesterday';
-    if (diffInDays < 7) return `${diffInDays} days ago`;
-    
-    return postDate.toLocaleDateString(); 
-  };
+  const [recentItems, setRecentItems] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null); // Added for Popup state
 
   useEffect(() => {
-    const fetchItems = async () => {
-      let query = supabase
+    const fetchRecent = async () => {
+      const { data } = await supabase
         .from('items')
         .select('*')
-        .order('created_at', { ascending: sortOrder === 'asc' });
-
-      if (filter !== 'all') query = query.eq('status', filter);
-
-      if (selectedDate) {
-        const startOfDay = `${selectedDate}T00:00:00`;
-        const endOfDay = `${selectedDate}T23:59:59`;
-        query = query.gte('created_at', startOfDay).lte('created_at', endOfDay);
-      }
-      
-      const { data } = await query;
-      setItems(data || []);
+        .order('created_at', { ascending: false })
+        .limit(4);
+      setRecentItems(data || []);
     };
-    fetchItems();
-  }, [filter, sortOrder, selectedDate]);
-
-  const filteredItems = items.filter((item) =>
-    item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.location.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    fetchRecent();
+  }, []);
 
   return (
-    <div className="min-vh-100 bg-light pb-5">
-      
+    <div className="bg-white min-vh-100 pb-5">
       {/* --- HERO SECTION --- */}
-      <div className="bg-primary text-white border-bottom border-white border-4 shadow-sm mb-4">
-        <div className="container py-5 text-center">
-          <h1 className="display-4 fw-bold">RUPP Community Board</h1>
-          <p className="lead opacity-75">Find your belongings within the RUPP community.</p>
-        </div>
-      </div>
-
-      <div className="container">
-        {/* --- SEARCH & FILTERS ROW --- */}
-        <div className="row g-3 mb-4 align-items-center">
-          <div className="col-lg-7">
-            <div className="input-group input-group-lg shadow-sm border border-2 border-black rounded">
-              <span className="input-group-text bg-white border-0">🔍</span>
-              <input 
-                type="text" 
-                className="form-control border-0" 
-                placeholder="Search name or location..." 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="col-lg-5">
-            <div className="d-flex gap-2">
-              <div className="d-flex align-items-center bg-white p-2 rounded border border-2 border-black shadow-sm flex-grow-1">
-                <span className="me-2 fw-bold small">Day:</span>
-                <input 
-                  type="date" 
-                  className="form-control form-control-sm border-0 fw-bold"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                />
-              </div>
-              <div className="d-flex align-items-center bg-white p-2 rounded border border-2 border-black shadow-sm">
-                <span className="me-2 fw-bold small">Sort:</span>
-                <select 
-                  className="form-select form-select-sm border-0 fw-bold" 
-                  value={sortOrder}
-                  onChange={(e) => setSortOrder(e.target.value)}
-                >
-                  <option value="desc">Newest</option>
-                  <option value="asc">Oldest</option>
-                </select>
-              </div>
-            </div>
+      <section className="text-center text-white shadow-sm mb-5" style={{ background: '#0d6efd', borderBottom: '5px solid #ffc107' }}>
+        <div className="container py-5">
+          <h1 className="display-3 fw-bold mb-3 text-uppercase">YOU LOST WE FOUND</h1>
+          <p className="lead fw-bold mb-5 mx-auto opacity-100" style={{ maxWidth: '750px' }}>
+            The official digital portal for the RUPP community. Report lost items or browse 
+            our verified database to find what you've lost.
+          </p>
+          <div className="d-flex flex-column flex-sm-row justify-content-center gap-3 pb-4">
+            <Link to="/board" className="btn btn-light btn-lg px-5 fw-bold rounded-pill border border-2 border-dark shadow">
+              Browse Board
+            </Link>
+            <Link to="/report" className="btn btn-warning btn-lg px-5 fw-bold rounded-pill border border-2 border-dark shadow">
+              + Report Item
+            </Link>
           </div>
         </div>
+      </section>
 
-        {/* --- CATEGORY BUTTONS --- */}
-        <div className="d-flex flex-wrap gap-3 justify-content-center mb-5">
-          {['all', 'lost', 'found'].map((type) => (
-            <button 
-              key={type}
-              onClick={() => setFilter(type)} 
-              className={`btn btn-lg px-5 py-3 fw-bold shadow-sm transition-all ${
-                filter === type 
-                  ? (type === 'lost' ? 'btn-danger' : type === 'found' ? 'btn-success' : 'btn-dark') 
-                  : (type === 'lost' ? 'btn-outline-danger' : type === 'found' ? 'btn-outline-success' : 'btn-outline-dark')
-              }`}
-              style={{ 
-                borderRadius: '15px', 
-                minWidth: '180px', 
-                borderWidth: '3px' // Makes the border thick like your "Lost" button
-              }}
-            >
-              {type.charAt(0).toUpperCase() + type.slice(1)}
-            </button>
-          ))}
-        </div>
-
-        {/* --- GRID ITEMS --- */}
-        <div className="row">
-          {filteredItems.map(item => (
-            <div key={item.id} className="col-md-6 col-lg-4 mb-4">
-              <div 
-                className="card h-100 border-0 shadow-sm overflow-hidden" 
-                style={{ borderRadius: '20px', cursor: 'pointer', transition: '0.3s' }}
-                onClick={() => setSelectedItem(item)}
-                onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-                onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-              >
-                <img src={item.image_url || 'https://via.placeholder.com/300'} style={{ height: '240px', objectFit: 'cover' }} alt={item.title} />
-                <div className="card-body p-4">
-                  <div className="d-flex justify-content-between align-items-center mb-3">
-                    <span className={`badge px-3 py-2 rounded-pill ${item.status === 'lost' ? 'bg-danger' : 'bg-success'}`}>
-                      {item.status.toUpperCase()}
-                    </span>
-                    {/* RELATIVE TIME ADDED HERE */}
-                    <small className="text-muted fw-bold">{formatRelativeTime(item.created_at)}</small>
-                  </div>
-                  <h4 className="fw-bold mb-2">{item.title}</h4>
-                  <p className="text-muted mb-0">📍 {item.location}</p>
-                </div>
+      {/* --- HOW IT WORKS SECTION --- */}
+      <section className="container mb-5">
+        <div className="row g-4 text-center justify-content-center">
+          {[
+            { icon: "🔍", title: "1. Search", text: "Check the community board for your missing item." },
+            { icon: "📝", title: "2. Report", text: "Submit a report if you found or lost something." },
+            { icon: "🤝", title: "3. Reunited", text: "Connect with the owner and return the item." }
+          ].map((step, i) => (
+            <div key={i} className="col-md-4 col-sm-10">
+              <div className="p-4 bg-light rounded-4 border border-2 border-dark h-100 shadow-sm">
+                <div className="display-4 mb-3">{step.icon}</div>
+                <h4 className="fw-bold">{step.title}</h4>
+                <p className="text-muted mb-0 fw-semibold">{step.text}</p>
               </div>
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
-      {/* --- DETAIL POPUP (MODAL) --- */}
+      {/* --- RECENT ACTIVITY SECTION --- */}
+      <section className="container mt-5">
+        <div className="d-flex justify-content-between align-items-center mb-4 px-2">
+          <h2 className="fw-bold m-0 text-dark text-uppercase">Recent Activity</h2>
+          <Link to="/board" className="btn btn-outline-primary fw-bold rounded-pill border-2">
+            View All →
+          </Link>
+        </div>
+
+        <div className="row g-3 g-md-4 justify-content-center px-2">
+          {recentItems.length > 0 ? (
+            recentItems.map(item => (
+              <div key={item.id} className="col-6 col-md-3" onClick={() => setSelectedItem(item)} style={{ cursor: 'pointer' }}>
+                <ItemCard item={item} />
+              </div>
+            ))
+          ) : (
+            <div className="col-12 text-center py-5">
+              <p className="text-muted fw-bold">No recent items reported yet.</p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* --- POPUP MODAL (Same as BoardPage) --- */}
       {selectedItem && (
-        <div 
-          className="modal show d-block" 
-          style={{ backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 3000 }}
-          onClick={() => setSelectedItem(null)}
-        >
+        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 3000 }} onClick={() => setSelectedItem(null)}>
           <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-content border-0 shadow-lg" style={{ borderRadius: '25px', overflow: 'hidden' }}>
-              <div className="modal-header border-0 position-absolute end-0 top-0" style={{ zIndex: 10 }}>
-                <button type="button" className="btn-close bg-white rounded-circle p-2 m-2" onClick={() => setSelectedItem(null)}></button>
-              </div>
-              
-              <div className="modal-body p-0">
-                {selectedItem.image_url && (
-                  <img src={selectedItem.image_url} className="w-100" style={{ height: '300px', objectFit: 'cover' }} alt={selectedItem.title} />
-                )}
-                
+            <div className="modal-content border border-3 border-dark shadow-lg" style={{ borderRadius: '25px', overflow: 'hidden' }}>
+              <div className="modal-body p-0 text-dark">
+                {selectedItem.image_url && <img src={selectedItem.image_url} className="w-100" style={{ height: '300px', objectFit: 'cover' }} alt={selectedItem.title} />}
                 <div className="p-4">
                   <div className="d-flex justify-content-between align-items-center mb-2">
                     <h2 className="fw-bold m-0">{selectedItem.title}</h2>
-                    <span className={`badge px-3 py-2 rounded-pill ${selectedItem.status === 'lost' ? 'bg-danger' : 'bg-success'}`}>
+                    <span className={`badge px-3 py-2 rounded-pill border border-2 border-dark ${selectedItem.status === 'lost' ? 'bg-danger text-white' : 'bg-success text-white'}`}>
                       {selectedItem.status.toUpperCase()}
                     </span>
                   </div>
-                  
-                  {/* RELATIVE TIME ADDED TO MODAL */}
-                  <p className="text-muted mb-4 d-flex align-items-center">
-                    <span className="me-2">📅</span> 
-                    {new Date(selectedItem.created_at).toLocaleDateString()}
-                    <span className="mx-2 text-secondary">•</span>
-                    <span className="text-primary fw-bold">{formatRelativeTime(selectedItem.created_at)}</span>
-                  </p>
-                  
-                  <hr />
-                  
-                  <div className="mb-4">
+                  <p className="text-muted mb-4 fs-6 fw-bold">📅 {new Date(selectedItem.created_at).toLocaleDateString()}</p>
+                  <hr className="border-2 border-dark" />
+                  <div className="mb-3">
                     <label className="fw-bold text-primary small text-uppercase mb-1 d-block">Location</label>
-                    <p className="fs-5">📍 {selectedItem.location}</p>
+                    <p className="fs-5 fw-bold">📍 {selectedItem.location}</p>
                   </div>
-
-                  <div className="mb-4">
+                  <div className="mb-3">
                     <label className="fw-bold text-primary small text-uppercase mb-1 d-block">Description</label>
-                    <p className="bg-light p-3 rounded-3">{selectedItem.description || 'No description provided.'}</p>
+                    <p className="bg-light p-3 rounded-3 border border-dark">{selectedItem.description || 'No description provided.'}</p>
                   </div>
-                  
-                  <div className="bg-primary text-white p-3 rounded-4 shadow-sm">
-                    <label className="fw-bold small text-uppercase mb-1 d-block opacity-75">Contact</label>
+                  <div className="bg-primary text-white p-3 rounded-4 shadow-sm border border-2 border-dark text-center">
+                    <label className="fw-bold small text-uppercase mb-1 d-block opacity-75">Contact Details</label>
                     <p className="m-0 fs-4 fw-bold">{selectedItem.contact_info}</p>
                   </div>
                 </div>
