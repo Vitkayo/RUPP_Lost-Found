@@ -8,6 +8,7 @@ function ReportPage() {
   
   const [title, setTitle] = useState('');
   const [status, setStatus] = useState('lost');
+  // Formats date for the datetime-local input
   const [dateTime, setDateTime] = useState(new Date().toISOString().slice(0, 16));
   const [location, setLocation] = useState('');
   const [contact, setContact] = useState('');
@@ -39,7 +40,7 @@ function ReportPage() {
     const { error } = await supabase.from('items').insert([{
       title,
       status,
-      created_at: dateTime,
+      created_at: dateTime, // This sends the date/time to Supabase
       location,
       contact_info: contact,
       description,
@@ -65,7 +66,6 @@ function ReportPage() {
       <div className="container">
         <div className="row justify-content-center">
           <div className="col-11 col-md-8 col-lg-6">
-            {/* FRAMED FORM BOX */}
             <div className="card shadow-lg border border-3 border-dark p-2" style={{ borderRadius: '25px' }}>
               <div className="card-body">
                 <form onSubmit={handleSubmit}>
@@ -82,10 +82,22 @@ function ReportPage() {
                         <option value="found">Found Item</option>
                       </select>
                     </div>
+                    {/* ADDED DATE & TIME INPUT HERE */}
                     <div className="col-6">
-                      <label className="form-label fw-bold">Location</label>
-                      <input type="text" className="form-control border-2 border-dark rounded-3" placeholder="Ex: Building A" required onChange={(e)=>setLocation(e.target.value)} />
+                      <label className="form-label fw-bold">Date & Time</label>
+                      <input 
+                        type="datetime-local" 
+                        className="form-control border-2 border-dark rounded-3" 
+                        value={dateTime} 
+                        onChange={(e) => setDateTime(e.target.value)} 
+                        required 
+                      />
                     </div>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label fw-bold">Location</label>
+                    <input type="text" className="form-control border-2 border-dark rounded-3" placeholder="Ex: Building A" required onChange={(e)=>setLocation(e.target.value)} />
                   </div>
 
                   <div className="mb-3">
@@ -97,7 +109,7 @@ function ReportPage() {
                     <label className="form-label fw-bold">Description (Optional)</label>
                     <textarea 
                       className="form-control border-2 border-dark rounded-3" 
-                      rows="3" 
+                      rows="2" 
                       placeholder="Color, brand, or unique marks..."
                       onChange={(e)=>setDescription(e.target.value)}
                     ></textarea>
@@ -108,7 +120,7 @@ function ReportPage() {
                     <input type="file" className="form-control border-2 border-dark rounded-3" accept="image/*" onChange={(e)=>setImageFile(e.target.files[0])} />
                   </div>
 
-                  <button type="submit" className="btn btn-primary w-100 fw-bold py-3 shadow-sm rounded-pill border-2 border-dark" disabled={uploading}>
+                  <button type="submit" className="btn btn-primary w-100 fw-bold py-3 shadow-sm rounded-pill border-3 border-dark" disabled={uploading}>
                     {uploading ? 'SUBMITTING...' : 'SUBMIT REPORT'}
                   </button>
                 </form>
