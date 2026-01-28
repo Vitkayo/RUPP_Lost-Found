@@ -162,30 +162,56 @@ function BoardPage() {
       </div>
 
       {/* MODAL (Keeping same frame style) */}
-      {selectedItem && (
-        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 3000 }} onClick={() => setSelectedItem(null)}>
-          <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-content border border-3 border-dark shadow-lg" style={{ borderRadius: '25px', overflow: 'hidden' }}>
-              <div className="modal-body p-0 text-dark">
-                {selectedItem.image_url && <img src={selectedItem.image_url} className="w-100" style={{ height: '300px', objectFit: 'cover' }} alt={selectedItem.title} />}
-                <div className="p-4">
-                  <div className="d-flex justify-content-between align-items-center mb-2">
-                    <h2 className="fw-bold m-0">{selectedItem.title}</h2>
-                    <span className={`badge px-3 py-2 rounded-pill border border-2 border-dark ${selectedItem.status === 'lost' ? 'bg-danger text-white' : 'bg-success text-white'}`}>
-                      {selectedItem.status.toUpperCase()}
-                    </span>
-                  </div>
-                  <hr className="border-2 border-dark" />
-                  <div className="bg-primary text-white p-3 rounded-4 shadow-sm border border-2 border-dark text-center">
-                    <label className="fw-bold small text-uppercase mb-1 d-block opacity-75">Contact Details</label>
-                    <p className="m-0 fs-4 fw-bold">{selectedItem.contact_info}</p>
-                  </div>
-                </div>
-              </div>
+      {/* MODAL - NOW AS COOL AS HOMEPAGE */}
+{selectedItem && (
+  <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 3000 }} onClick={() => setSelectedItem(null)}>
+    <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content border border-3 border-dark shadow-lg" style={{ borderRadius: '25px', overflow: 'hidden' }}>
+        <div className="modal-body p-0 text-dark">
+          {selectedItem.image_url && (
+  <div className="bg-light border-bottom border-2 border-dark" style={{ height: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <img 
+      src={selectedItem.image_url} 
+      className="w-100 h-100" 
+      style={{ objectFit: 'contain' }} // This prevents cropping
+      alt={selectedItem.title} 
+    />
+  </div>
+)}
+<div className="p-4">
+            <div className="d-flex justify-content-between align-items-center mb-2">
+              <h2 className="fw-bold m-0">{selectedItem.title}</h2>
+              <span className={`badge px-3 py-2 rounded-pill border border-2 border-dark ${selectedItem.status === 'lost' ? 'bg-danger text-white' : 'bg-success text-white'}`}>
+                {selectedItem.status.toUpperCase()}
+              </span>
+            </div>
+            {/* Added Date Display */}
+            <p className="text-muted mb-4 fs-6 fw-bold">📅 {new Date(selectedItem.created_at).toLocaleDateString()}</p>
+            
+            <hr className="border-2 border-dark" />
+            
+            {/* Added Location Section */}
+            <div className="mb-3">
+              <label className="fw-bold text-primary small text-uppercase mb-1 d-block">Location</label>
+              <p className="fs-5 fw-bold">📍 {selectedItem.location}</p>
+            </div>
+
+            {/* Added Description Section */}
+            <div className="mb-3">
+              <label className="fw-bold text-primary small text-uppercase mb-1 d-block">Description</label>
+              <p className="bg-light p-3 rounded-3 border border-dark">{selectedItem.description || 'No description provided.'}</p>
+            </div>
+
+            <div className="bg-primary text-white p-3 rounded-4 shadow-sm border border-2 border-dark text-center">
+              <label className="fw-bold small text-uppercase mb-1 d-block opacity-75">Contact Details</label>
+              <p className="m-0 fs-4 fw-bold">{selectedItem.contact_info}</p>
             </div>
           </div>
         </div>
-      )}
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }

@@ -139,35 +139,62 @@ function AdminDashboard() {
             </div>
           </div>
 
-          {/* --- DETAIL POP-UP --- */}
           {selectedItem && (
-            <div className="modal-overlay" style={overlayStyle} onClick={() => setSelectedItem(null)}>
-              <div className="card shadow-lg border-0 overflow-hidden" style={modalStyle} onClick={e => e.stopPropagation()}>
-                <button onClick={() => setSelectedItem(null)} className="btn-close position-absolute top-0 end-0 m-3 bg-white p-2 rounded-circle shadow-sm"></button>
-                <img src={selectedItem.image_url || 'https://via.placeholder.com/400x250?text=No+Image'} className="w-100" style={{ height: '280px', objectFit: 'cover' }} alt="Item" />
-                <div className="p-4">
-                  <div className="d-flex justify-content-between align-items-center mb-2">
-                    <h3 className="fw-bold mb-0">{selectedItem.title}</h3>
-                    <span className={`badge rounded-pill ${selectedItem.status === 'lost' ? 'bg-danger' : 'bg-success'}`}>
-                      {selectedItem.status.toUpperCase()}
-                    </span>
-                  </div>
-                  <p className="text-muted mb-4 fs-6">📍 Location: <strong>{selectedItem.location}</strong></p>
-                  <div className="bg-light p-3 rounded-4 mb-4 text-center border">
-                    <p className="mb-0 text-muted small text-uppercase fw-bold">Contact Details</p>
-                    <h5 className="text-primary fw-bold mb-0">{selectedItem.contact_info || 'No contact provided'}</h5>
-                  </div>
-                  <div className="d-flex gap-2">
-                    <button onClick={() => handleDelete(selectedItem.id)} className="btn btn-danger w-100 fw-bold py-2 rounded-3 shadow-sm">Delete</button>
-                  </div>
-                  <div className="mt-4 pt-3 border-top">
-                    <small className="text-primary fw-bold d-block mb-1">Description:</small>
-                    <p className="text-muted small mb-0">{selectedItem.description || 'No description provided.'}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+  <div className="modal-overlay" style={overlayStyle} onClick={() => setSelectedItem(null)}>
+    <div className="card shadow-lg border border-3 border-dark overflow-hidden" style={modalStyle} onClick={e => e.stopPropagation()}>
+      {/* Close Button */}
+      <button onClick={() => setSelectedItem(null)} className="btn-close position-absolute top-0 end-0 m-3 bg-white p-2 rounded-circle shadow-sm border border-2 border-dark" style={{ zIndex: 10 }}></button>
+      
+      {/* Image with 'contain' so it fits perfectly */}
+      <div className="bg-dark d-flex align-items-center justify-content-center" style={{ height: '300px' }}>
+        <img 
+          src={selectedItem.image_url || 'https://via.placeholder.com/400x250?text=No+Image'} 
+          className="h-100 mw-100" 
+          style={{ objectFit: 'contain' }} 
+          alt="Item" 
+        />
+      </div>
+
+      <div className="p-4 text-dark">
+        <div className="d-flex justify-content-between align-items-center mb-2">
+          <h2 className="fw-bold m-0 text-uppercase" style={{ fontSize: '1.5rem' }}>{selectedItem.title}</h2>
+          <span className={`badge px-3 py-2 rounded-pill border border-2 border-dark ${selectedItem.status === 'lost' ? 'bg-danger text-white' : 'bg-success text-white'}`}>
+            {selectedItem.status.toUpperCase()}
+          </span>
+        </div>
+        
+        <p className="text-muted mb-4 fs-6 fw-bold">📅 {new Date(selectedItem.created_at).toLocaleDateString()}</p>
+        
+        <hr className="border-2 border-dark" />
+        
+        {/* Blue Labels and Location */}
+        <div className="mb-3">
+          <label className="fw-bold text-primary small text-uppercase mb-1 d-block">Location</label>
+          <p className="fs-5 fw-bold">📍 {selectedItem.location}</p>
+        </div>
+
+        {/* Description Box */}
+        <div className="mb-3">
+          <label className="fw-bold text-primary small text-uppercase mb-1 d-block">Description</label>
+          <p className="bg-light p-3 rounded-3 border border-2 border-dark fw-semibold">
+            {selectedItem.description || 'No description provided.'}
+          </p>
+        </div>
+
+        {/* Contact Details Styled like Homepage */}
+        <div className="bg-primary text-white p-3 rounded-4 shadow-sm border border-2 border-dark text-center mb-3">
+          <label className="fw-bold small text-uppercase mb-1 d-block opacity-75">Contact Details</label>
+          <p className="m-0 fs-4 fw-bold">{selectedItem.contact_info || 'No contact provided'}</p>
+        </div>
+
+        {/* Admin Action Button */}
+        <button onClick={() => handleDelete(selectedItem.id)} className="btn btn-danger w-100 fw-bold py-2 rounded-pill border border-2 border-dark shadow-sm">
+          DELETE
+        </button>
+      </div>
+    </div>
+  </div>
+)}
         </div>
       </div>
     </div>

@@ -89,8 +89,16 @@ function HomePage() {
           <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
             <div className="modal-content border border-3 border-dark shadow-lg" style={{ borderRadius: '25px', overflow: 'hidden' }}>
               <div className="modal-body p-0 text-dark">
-                {selectedItem.image_url && <img src={selectedItem.image_url} className="w-100" style={{ height: '300px', objectFit: 'cover' }} alt={selectedItem.title} />}
-                <div className="p-4">
+                {selectedItem.image_url && (
+  <div className="bg-light border-bottom border-2 border-dark" style={{ height: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <img 
+      src={selectedItem.image_url} 
+      className="w-100 h-100" 
+      style={{ objectFit: 'contain' }} 
+      alt={selectedItem.title} 
+    />
+  </div>
+)}<div className="p-4">
                   <div className="d-flex justify-content-between align-items-center mb-2">
                     <h2 className="fw-bold m-0">{selectedItem.title}</h2>
                     <span className={`badge px-3 py-2 rounded-pill border border-2 border-dark ${selectedItem.status === 'lost' ? 'bg-danger text-white' : 'bg-success text-white'}`}>
